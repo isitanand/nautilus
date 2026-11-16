@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Memplus Technologies — BTC Options Straddle Analytics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-page: #f4f6fa;
+      --card-bg: #ffffff;
+      --border-subtle: #edf2f7;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-dim: #94a3b8;
+      --primary-blue: #2563eb;
+      --primary-gradient: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
+      --accent-green: #10b981;
+      --accent-coral: #ef4444;
+      --accent-amber: #f59e0b;
+      --accent-purple: #8b5cf6;
+      --sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --mono: 'JetBrains Mono', Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-page);
+      font-family: var(--sans);
+      color: var(--text-main);
+      padding: 24px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    .dashboard-wrapper {
+      width: 100%;
+      max-width: 1480px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 10px 20px;
+      border: 1px solid var(--border-subtle);
+    }
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .brand-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 15px;
+      color: var(--text-main);
+    }
+    .brand-icon-box {
+      width: 28px;
+      height: 28px;
+      background: var(--primary-blue);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+    }
+    .nav-pill-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: #f8fafc;
+      padding: 4px;
+      border-radius: 20px;
+      border: 1px solid var(--border-subtle);
+    }
+    .nav-link {
+      padding: 6px 14px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .nav-link:hover { color: var(--text-main); }
+    .nav-link.active {
+      background: #0f172a;
+      color: #ffffff;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f8fafc;
+      padding: 7px 14px;
+      border-radius: 18px;
+      border: 1px solid var(--border-subtle);
+      width: 220px;
+    }
+    .search-box input {
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 12px;
+      font-family: inherit;
+      color: var(--text-main);
+      width: 100%;
+    }
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #f8fafc;
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-muted);
+    }
+    .user-avatar-circle {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #1e3a8a;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sub-hdr {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .sub-hdr-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .sub-tag {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-dim);
+    }
+    .sub-title {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .sub-hdr-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn-dropdown-pill {
+      background: #ffffff;
+      border: 1px solid var(--border-subtle);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+    .btn-blue-action {
+      background: var(--primary-blue);
+      color: #ffffff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+      font-family: inherit;
+    }
+    .btn-blue-action:hover { background: #1d4ed8; }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .kpi-card {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 20px;
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .kpi-card-hero {
+      background: var(--primary-gradient);
+      color: #ffffff;
+      border: none;
+      box-shadow: 0 10px 25px rgba(37, 99, 235, 0.22);
+    }
+    .kpi-hdr-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .kpi-card-hero .kpi-label { color: rgba(255, 255, 255, 0.85); }
+    .kpi-icon-pill {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+    .kpi-card-hero .kpi-icon-pill { background: rgba(255, 255, 255, 0.2); color: #ffffff; }
+    .icon-cyan { background: #ecfeff; color: #06b6d4; }
+    .icon-purple { background: #f5f3ff; color: #8b5cf6; }
+    .icon-coral { background: #fef2f2; color: #ef4444; }
+
+    .kpi-val {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.8px;
+      font-family: var(--mono);
+      margin-bottom: 12px;
+    }
+    .kpi-trend-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 12px;
+      width: fit-content;
+    }
+    .kpi-card-hero .kpi-trend-pill { background: rgba(255, 255, 255, 0.2); color: #ffffff; }
+    .trend-green { background: #f0fdf4; color: #16a34a; }
+    .trend-blue { background: #eff6ff; color: #2563eb; }
+    .trend-coral { background: #fef2f2; color: #dc2626; }
+
+    .middle-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 16px;
+    }
+    .section-card {
+      background: #ffffff;
+      border-radius: 20px;
+      border: 1px solid var(--border-subtle);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .sec-hdr {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .sec-title {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -0.2px;
+    }
+    .chart-legend {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .dot-call { width: 8px; height: 8px; border-radius: 50%; background: #2563eb; }
+    .dot-put { width: 8px; height: 8px; border-radius: 50%; background: #93c5fd; }
+
+    .perf-chart-box {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+    }
+    .chart-canvas-container {
+      height: 180px;
+      display: flex;
+      align-items: flex-end;
+      gap: 18px;
+      padding-top: 20px;
+      position: relative;
+    }
+    .bar-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .bars-paired {
+      display: flex;
+      align-items: flex-end;
+      gap: 5px;
+      height: 140px;
+      width: 100%;
+      justify-content: center;
+    }
+    .p-bar {
+      width: 22px;
+      border-radius: 6px;
+      transition: height 0.4s ease;
+    }
+    .p-bar-call { background: #2563eb; }
+    .p-bar-put { background: #dbeafe; }
+    .p-bar-active {
+      background: repeating-linear-gradient(45deg, #1d4ed8, #1d4ed8 6px, #2563eb 6px, #2563eb 12px);
+    }
+    .strike-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      font-family: var(--mono);
+    }
+
+    .floating-tooltip {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ffffff;
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 8px 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      font-size: 11px;
+      line-height: 1.4;
+      pointer-events: none;
+      z-index: 10;
+      transition: left 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      white-space: nowrap;
+    }
+    .tooltip-date { font-weight: 700; color: var(--text-main); margin-bottom: 2px; }
+    .tooltip-row { display: flex; align-items: center; gap: 6px; color: var(--text-muted); font-size: 10px; }
+
+    .gauge-card {
+      align-items: center;
+      text-align: center;
+    }
+    .radial-gauge-container {
+      position: relative;
+      width: 190px;
+      height: 120px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 10px 0;
+    }
+    .gauge-center-text {
+      position: absolute;
+      bottom: 6px;
+      text-align: center;
+    }
+    .gauge-big-pct {
+      font-size: 28px;
+      font-weight: 800;
+      font-family: var(--mono);
+      letter-spacing: -0.5px;
+    }
+    .gauge-sub-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .gauge-metrics-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      width: 100%;
+      margin-top: 12px;
+    }
+    .g-mini-box {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 8px 10px;
+      text-align: left;
+      border: 1px solid var(--border-subtle);
+    }
+    .g-mini-label { font-size: 10px; color: var(--text-muted); font-weight: 600; margin-bottom: 2px; }
+    .g-mini-val { font-size: 13px; font-weight: 800; font-family: var(--mono); }
+
+    .table-card {
+      background: #ffffff;
+      border-radius: 20px;
+      border: 1px solid var(--border-subtle);
+      padding: 22px;
+    }
+    .tbl-hdr {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .tbl-title { font-size: 15px; font-weight: 800; }
+    .tbl-action-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-test-pill {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border-subtle);
+      background: #f8fafc;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-test-pill:hover { background: #f1f5f9; }
+    .btn-test-pill.active {
+      background: #0f172a;
+      color: #ffffff;
+      border-color: #0f172a;
+    }
+
+    table.exec-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    table.exec-table th {
+      text-align: left;
+      color: var(--text-dim);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 700;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    table.exec-table td {
+      padding: 14px 0;
+      border-bottom: 1px solid #f8fafc;
+      vertical-align: middle;
+    }
+    table.exec-table tr:last-child td { border-bottom: none; }
+
+    .col-order {
+      font-family: var(--mono);
+      font-weight: 700;
+      color: var(--primary-blue);
+    }
+    .user-col-flex {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .u-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #ffffff;
+      flex-shrink: 0;
+    }
+    .u-call { background: #2563eb; }
+    .u-put { background: #06b6d4; }
+    .u-spot { background: #8b5cf6; }
+    .u-risk { background: #ef4444; }
+
+    .badge-status {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 12px;
+      display: inline-block;
+    }
+    .status-filled { background: #f0fdf4; color: #16a34a; }
+    .status-stream { background: #eff6ff; color: #2563eb; }
+    .status-armed { background: #fefce8; color: #ca8a04; }
+    .status-alert { background: #fef2f2; color: #dc2626; }
+
+    *::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    *::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    *::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.3);
+      border-radius: 6px;
+    }
+    *::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.5);
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.35; transform: scale(0.85); }
+    }
+
+    .event-drawer {
+      background: #0b1120;
+      color: #f8fafc;
+      border-radius: 20px;
+      padding: 16px 20px;
+      font-family: var(--mono);
+      font-size: 11px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 14px 34px rgba(15, 23, 42, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      position: relative;
+      transition: all 0.25s ease;
+    }
+    .ed-hdr {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    .ed-hdr-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .mac-dots {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .m-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+    .m-dot:hover { transform: scale(1.15); opacity: 0.85; }
+    .dot-r { background: #ef4444; }
+    .dot-y { background: #f59e0b; }
+    .dot-g { background: #10b981; }
+
+    .ed-title-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ed-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #e2e8f0;
+      letter-spacing: 0.3px;
+    }
+    .ed-badge-sub {
+      font-size: 9px;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.08);
+      color: #94a3b8;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      letter-spacing: 0.5px;
+    }
+
+    .ed-hdr-center {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 3px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .ed-filter-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-family: inherit;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .ed-filter-btn:hover { color: #f8fafc; }
+    .ed-filter-btn.active {
+      background: rgba(255, 255, 255, 0.12);
+      color: #38bdf8;
+    }
+
+    .ed-hdr-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .ed-status-chip {
+      font-size: 10px;
+      font-weight: 600;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.08);
+      padding: 4px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #38bdf8;
+      box-shadow: 0 0 8px #38bdf8;
+      animation: pulse 1.8s infinite ease-in-out;
+    }
+    .btn-ed-tool {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+      padding: 4px 9px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+    .btn-ed-tool:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .ed-box {
+      height: 120px;
+      overflow-y: scroll;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding-right: 6px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+      transition: height 0.2s ease;
+    }
+    .ed-box::-webkit-scrollbar {
+      width: 6px;
+    }
+    .ed-box::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 6px;
+    }
+    .ed-box::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+    }
+    .ed-box::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.38);
+    }
+
+    .ed-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 3px 6px;
+      border-radius: 6px;
+      white-space: nowrap;
+      line-height: 1.5;
+      transition: background 0.1s;
+    }
+    .ed-line:hover {
+      background: rgba(255, 255, 255, 0.035);
+    }
+    .ed-ts {
+      color: #64748b;
+      font-size: 10px;
+      min-width: 80px;
+      font-variant-numeric: tabular-nums;
+    }
+    .ed-tag {
+      font-weight: 700;
+      font-size: 9.5px;
+      padding: 1.5px 6px;
+      border-radius: 4px;
+      min-width: 52px;
+      text-align: center;
+      letter-spacing: 0.3px;
+    }
+    .tag-INFO { color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.25); }
+    .tag-EXEC { color: #34d399; background: rgba(52, 211, 153, 0.14); border: 1px solid rgba(52, 211, 153, 0.3); }
+    .tag-WARN { color: #fbbf24; background: rgba(251, 191, 36, 0.14); border: 1px solid rgba(251, 191, 36, 0.3); }
+    .tag-EXIT { color: #f87171; background: rgba(248, 113, 113, 0.16); border: 1px solid rgba(248, 113, 113, 0.35); }
+
+    .ed-comp {
+      color: #94a3b8;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 1.5px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      min-width: 145px;
+    }
+    .ed-msg {
+      color: #e2e8f0;
+      font-size: 11px;
+      flex: 1;
+    }
+    .ed-box-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 10px;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dashboard-wrapper">
+
+    <div class="top-nav">
+      <div class="nav-left">
+        <div class="brand-pill">
+          <div class="brand-icon-box">⚡</div>
+          <span>Memplus</span>
+        </div>
+        <div class="nav-pill-group">
+          <a class="nav-link" id="nav-overview" onclick="triggerTest('overview')">Overview</a>
+          <a class="nav-link" id="nav-level1" onclick="triggerTest('level1')">Level 1</a>
+          <a class="nav-link active" id="nav-sl" onclick="triggerTest('sl')">Level 2 SL</a>
+          <a class="nav-link" id="nav-tp" onclick="triggerTest('tp')">Level 2 TP</a>
+          <a class="nav-link" id="nav-legging" onclick="triggerTest('legging')">Legging</a>
+        </div>
+      </div>
+
+      <div class="nav-right">
+        <div class="search-box">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" placeholder="Search orders, strikes..." value="BTC-28MAR25-90000" readonly>
+        </div>
+        <button class="icon-btn" title="Notifications">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+        </button>
+        <div class="user-avatar-circle">AC</div>
+      </div>
+    </div>
+
+    <div class="sub-hdr">
+      <div class="sub-hdr-left">
+        <span class="sub-tag">Trading Systems Infrastructure // Bybit v5 UTA</span>
+        <h1 class="sub-title">Straddle overview</h1>
+      </div>
+      <div class="sub-hdr-right">
+        <button class="btn-dropdown-pill">
+          <span>Expiry: 28MAR25 (ATM $90k)</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <button class="btn-blue-action" onclick="runInteractiveDemo()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          <span id="btn-action-text">Execute Straddle Run</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+
+      <div class="kpi-card kpi-card-hero">
+        <div class="kpi-hdr-row">
+          <span class="kpi-label">Combined entry premium</span>
+          <div class="kpi-icon-pill" style="background: rgba(255, 255, 255, 0.2); color: #ffffff;">⚡</div>
+        </div>
+        <div class="kpi-val" id="disp-kpi-entry">$4,070.00</div>
+        <div class="kpi-trend-pill">
+          <span>↗</span>
+          <span id="disp-kpi-yield">+14.2% IV Yield</span>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-hdr-row">
+          <span class="kpi-label">Underlying spot price</span>
+          <div class="kpi-icon-pill icon-cyan">₿</div>
+        </div>
+        <div class="kpi-val" id="disp-kpi-spot">$90,150.00</div>
+        <div class="kpi-trend-pill trend-green">
+          <span>↗</span>
+          <span>+9.4% BTC Index</span>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-hdr-row">
+          <span class="kpi-label">Selected ATM strike</span>
+          <div class="kpi-icon-pill icon-purple">🎯</div>
+        </div>
+        <div class="kpi-val" id="disp-kpi-strike">$90,000.00</div>
+        <div class="kpi-trend-pill trend-blue">
+          <span>↗</span>
+          <span>min |K - S| = $150.00</span>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-hdr-row">
+          <div style="display:flex; flex-direction:column; gap:2px;">
+            <span class="kpi-label">Current buyback liability</span>
+            <span style="font-size:10px; color:var(--text-dim);">Ask-side cost to cover short legs</span>
+          </div>
+          <div class="kpi-icon-pill icon-coral">🛡️</div>
+        </div>
+        <div class="kpi-val" id="disp-kpi-buyback">$4,070.00</div>
+        <div class="kpi-trend-pill trend-coral" id="disp-kpi-drift">
+          <span id="drift-arrow">●</span>
+          <span id="drift-pct">0.00% Drift</span>
+          <span style="opacity:0.35; margin:0 3px;">|</span>
+          <span id="disp-net-pnl" style="font-weight:800;">PnL: $0.00</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="middle-grid">
+
+      <div class="section-card">
+        <div class="sec-hdr">
+          <span class="sec-title">Performance & Strike Volatility Distribution</span>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="dot-call"></div><span>Call Premium</span></div>
+            <div class="legend-item"><div class="dot-put"></div><span>Put Premium</span></div>
+            <span style="color:var(--text-dim); cursor:pointer;">⋮</span>
+          </div>
+        </div>
+
+        <div class="perf-chart-box">
+          
+          <div class="floating-tooltip" id="chart-tooltip">
+            <div class="tooltip-date" id="tt-strike">ATM Strike: $90,000 (Active)</div>
+            <div class="tooltip-row"><span style="color:#2563eb;">●</span> <span id="tt-call">Call Fill: $2,150.00 (Delta +0.48)</span></div>
+            <div class="tooltip-row"><span style="color:#93c5fd;">●</span> <span id="tt-put">Put Fill: $1,920.00 (Delta -0.52)</span></div>
+          </div>
+
+          <div class="chart-canvas-container">
+            
+            <div class="bar-group" onmouseenter="hoverStrike('88,000 (OTM Put)', '$3,200.00 (+0.72)', '$850.00 (-0.28)', '12%')" style="cursor:pointer;">
+              <div class="bars-paired">
+                <div class="p-bar p-bar-call" style="height: 110px;"></div>
+                <div class="p-bar p-bar-put" style="height: 40px;"></div>
+              </div>
+              <span class="strike-label">88k</span>
+            </div>
+            
+            <div class="bar-group" onmouseenter="hoverStrike('89,000', '$2,650.00 (+0.61)', '$1,340.00 (-0.39)', '31%')" style="cursor:pointer;">
+              <div class="bars-paired">
+                <div class="p-bar p-bar-call" style="height: 95px;"></div>
+                <div class="p-bar p-bar-put" style="height: 52px;"></div>
+              </div>
+              <span class="strike-label">89k</span>
+            </div>
+            
+            <div class="bar-group" onmouseenter="hoverStrike('90,000 (ATM Active)', '$2,150.00 (+0.48)', '$1,920.00 (-0.52)', '50%')" style="cursor:pointer;">
+              <div class="bars-paired">
+                <div class="p-bar p-bar-call p-bar-active" id="bar-active-c" style="height: 75px;"></div>
+                <div class="p-bar p-bar-put" id="bar-active-p" style="height: 68px;"></div>
+              </div>
+              <span class="strike-label" style="color:var(--primary-blue); font-weight:700; white-space:nowrap;">90k (ATM)</span>
+            </div>
+            
+            <div class="bar-group" onmouseenter="hoverStrike('91,000', '$1,680.00 (+0.38)', '$2,580.00 (-0.62)', '69%')" style="cursor:pointer;">
+              <div class="bars-paired">
+                <div class="p-bar p-bar-call" style="height: 58px;"></div>
+                <div class="p-bar p-bar-put" style="height: 85px;"></div>
+              </div>
+              <span class="strike-label">91k</span>
+            </div>
+            
+            <div class="bar-group" onmouseenter="hoverStrike('92,000 (OTM Call)', '$1,220.00 (+0.25)', '$3,350.00 (-0.75)', '88%')" style="cursor:pointer;">
+              <div class="bars-paired">
+                <div class="p-bar p-bar-call" style="height: 42px;"></div>
+                <div class="p-bar p-bar-put" style="height: 105px;"></div>
+              </div>
+              <span class="strike-label">92k</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card gauge-card">
+        <div class="sec-hdr" style="width:100%;">
+          <span class="sec-title">Risk Exposure</span>
+          <span style="font-size:11px; color:var(--text-muted); font-weight:600; background:#f8fafc; padding:3px 8px; border-radius:12px; border:1px solid var(--border-subtle);">Level 2 Mode ▾</span>
+        </div>
+
+        <div class="radial-gauge-container">
+          
+          <svg width="190" height="110" viewBox="0 0 190 110">
+            <g transform="translate(95, 95)" id="sunburst-rays">
+              
+            </g>
+          </svg>
+          <div class="gauge-center-text">
+            <div class="gauge-big-pct" id="disp-gauge-pct">0.0%</div>
+            <div class="gauge-sub-lbl" id="disp-gauge-sub">Optimal</div>
+          </div>
+        </div>
+
+        <div class="gauge-metrics-row">
+          <div class="g-mini-box">
+            <div class="g-mini-label">Stop-Loss (+1% Cost)</div>
+            <div class="g-mini-val" style="color:var(--accent-coral);">$4,110.70</div>
+            <div style="font-size:9.5px; color:var(--accent-coral); font-weight:700; margin-top:3px;">Max Loss: -$40.70</div>
+          </div>
+          <div class="g-mini-box">
+            <div class="g-mini-label">Take-Profit (-2% Cost)</div>
+            <div class="g-mini-val" style="color:var(--accent-green);">$3,988.60</div>
+            <div style="font-size:9.5px; color:var(--accent-green); font-weight:700; margin-top:3px;">Target Gain: +$81.40</div>
+          </div>
+        </div>
+        <div style="font-size:9.5px; color:var(--text-dim); text-align:center; margin-top:8px;">
+          Short Straddle rule: Rising liability (+%) = Loss • Falling liability (-%) = Profit
+        </div>
+      </div>
+
+    </div>
+
+    <div class="table-card">
+      <div class="tbl-hdr">
+        <span class="tbl-title">Recent executions & straddle legs</span>
+        <div class="tbl-action-group">
+          <button class="btn-test-pill" id="tbl-level1" onclick="triggerTest('level1')">Level 1: Naked</button>
+          <button class="btn-test-pill active" id="tbl-sl" onclick="triggerTest('sl')">Level 2: SL (+1%)</button>
+          <button class="btn-test-pill" id="tbl-tp" onclick="triggerTest('tp')">Level 2: TP (-2%)</button>
+          <button class="btn-test-pill" id="tbl-legging" onclick="triggerTest('legging')">Legging Fail</button>
+          <button class="btn-test-pill" id="tbl-overview" onclick="triggerTest('overview')">Reset / Overview</button>
+        </div>
+      </div>
+
+      <table class="exec-table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Leg / Instrument</th>
+            <th>Specifications</th>
+            <th>Quantity</th>
+            <th>Fill / Ask Price</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+          <tr>
+            <td class="col-order">#ORD-90412</td>
+            <td>
+              <div class="user-col-flex">
+                <div class="u-circle u-call">C</div>
+                <div>
+                  <div style="font-weight:700;">BTC-28MAR25-90000-C</div>
+                  <div style="font-size:10px; color:var(--text-muted);">Short Call Leg // Bybit UTA</div>
+                </div>
+              </div>
+            </td>
+            <td style="color:var(--text-muted);">Strike $90,000.00 // Market IOC</td>
+            <td style="font-family:var(--mono);">0.10 BTC</td>
+            <td style="font-family:var(--mono); font-weight:700;" id="row-call-px">$2,150.00</td>
+            <td><span class="badge-status status-filled" id="badge-call">Filled</span></td>
+          </tr>
+
+          <tr>
+            <td class="col-order">#ORD-90408</td>
+            <td>
+              <div class="user-col-flex">
+                <div class="u-circle u-put">P</div>
+                <div>
+                  <div style="font-weight:700;">BTC-28MAR25-90000-P</div>
+                  <div style="font-size:10px; color:var(--text-muted);">Short Put Leg // Bybit UTA</div>
+                </div>
+              </div>
+            </td>
+            <td style="color:var(--text-muted);">Strike $90,000.00 // Market IOC</td>
+            <td style="font-family:var(--mono);">0.10 BTC</td>
+            <td style="font-family:var(--mono); font-weight:700;" id="row-put-px">$1,920.00</td>
+            <td><span class="badge-status status-filled" id="badge-put">Filled</span></td>
+          </tr>
+
+          <tr>
+            <td class="col-order">#SPOT-90401</td>
+            <td>
+              <div class="user-col-flex">
+                <div class="u-circle u-spot">S</div>
+                <div>
+                  <div style="font-weight:700;">BTCUSDT-LINEAR</div>
+                  <div style="font-size:10px; color:var(--text-muted);">Bybit Perpetual Reference Proxy</div>
+                </div>
+              </div>
+            </td>
+            <td style="color:var(--text-muted);">ATM Delta Benchmark</td>
+            <td style="font-family:var(--mono);">1.00 BTC</td>
+            <td style="font-family:var(--mono); font-weight:700;" id="row-spot-px">$90,150.00</td>
+            <td><span class="badge-status status-stream">Streaming</span></td>
+          </tr>
+
+          <tr>
+            <td class="col-order">#RSK-90396</td>
+            <td>
+              <div class="user-col-flex">
+                <div class="u-circle u-risk">R</div>
+                <div>
+                  <div style="font-weight:700;">LEVEL 2 RISK ENGINE</div>
+                  <div style="font-size:10px; color:var(--text-muted);">Ask-Side Combined Valuation</div>
+                </div>
+              </div>
+            </td>
+            <td style="color:var(--text-muted);" id="row-risk-desc">SL: +1.0% ($4,110.70) | TP: -2.0% ($3,988.60)</td>
+            <td style="font-family:var(--mono);">0.20 BTC</td>
+            <td style="font-family:var(--mono); font-weight:700;" id="row-risk-px">$4,070.00</td>
+            <td><span class="badge-status status-armed" id="badge-risk">Armed</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="event-drawer" id="event-drawer">
+      <div class="ed-hdr">
+        <div class="ed-hdr-left">
+          <div class="mac-dots">
+            <div class="m-dot dot-r" onclick="clearLogs()" title="Clear Console"></div>
+            <div class="m-dot dot-y" onclick="toggleDrawerHeight()" title="Expand / Shrink Console Height"></div>
+            <div class="m-dot dot-g" onclick="logMsg('nautilus_trader.kernel', 'INFO', 'Heartbeat ping: 14.2ms RTT to Bybit AWS Tokyo.')" title="Kernel Heartbeat"></div>
+          </div>
+          <div class="ed-title-group">
+            <span class="ed-title">nautilus_trader.kernel // live-eventbus</span>
+            <span class="ed-badge-sub">BYBIT UTA WS</span>
+          </div>
+        </div>
+
+        <div class="ed-hdr-center">
+          <button class="ed-filter-btn active" onclick="filterLogs('ALL', this)">ALL</button>
+          <button class="ed-filter-btn" onclick="filterLogs('EXEC', this)">EXEC</button>
+          <button class="ed-filter-btn" onclick="filterLogs('WARN', this)">RISK</button>
+          <button class="ed-filter-btn" onclick="filterLogs('INFO', this)">TICKS</button>
+        </div>
+
+        <div class="ed-hdr-right">
+          <div class="ed-status-chip">
+            <div class="live-dot"></div>
+            <span id="ed-status">Listening: tickers.BTC, orderbook.50.BTC</span>
+          </div>
+          <button class="btn-ed-tool" onclick="toggleDrawerHeight()" title="Expand Height">
+            <span>↕ Resize</span>
+          </button>
+          <button class="btn-ed-tool" onclick="copyLogs(this)" title="Copy Logs">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            <span>Copy</span>
+          </button>
+          <button class="btn-ed-tool" onclick="clearLogs()" title="Clear Console">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            <span>Clear</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="ed-box" id="ed-box"></div>
+
+      <div class="ed-box-footer">
+        <span id="ed-count">3 events captured</span>
+        <span>Zero-copy RingBuffer active • NautilusTrader v1.231.0 • Bybit v5 UTA</span>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+
+    const raysGroup = document.getElementById('sunburst-rays');
+    const totalRays = 26;
+    for (let i = 0; i < totalRays; i++) {
+      const angle = (Math.PI / (totalRays - 1)) * i + Math.PI;
+      const rInner = 60;
+      const rOuter = 82;
+      const x1 = Math.cos(angle) * rInner;
+      const y1 = Math.sin(angle) * rInner;
+      const x2 = Math.cos(angle) * rOuter;
+      const y2 = Math.sin(angle) * rOuter;
+
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', x1);
+      line.setAttribute('y1', y1);
+      line.setAttribute('x2', x2);
+      line.setAttribute('y2', y2);
+      line.setAttribute('stroke-width', '4');
+      line.setAttribute('stroke-linecap', 'round');
+      line.setAttribute('stroke', i < 16 ? '#2563eb' : '#e2e8f0');
+      line.id = `ray-${i}`;
+      raysGroup.appendChild(line);
+    }
+
+    const edBox = document.getElementById('ed-box');
+    let totalLogCount = 0;
+    let currentFilter = 'ALL';
+
+    function logMsg(component, tag, txt) {
+      const now = new Date();
+      const ts = now.toISOString().substring(11, 23);
+      const row = document.createElement('div');
+      row.className = 'ed-line';
+      row.dataset.tag = tag;
+      row.dataset.comp = component;
+
+      let formattedTxt = txt
+        .replace(/(\$[\d,]+\.?\d*)/g, '<span style="color:#38bdf8; font-weight:600;">$1</span>')
+        .replace(/([+-]?\d+\.?\d*\%)/g, '<span style="color:#34d399; font-weight:600;">$1</span>')
+        .replace(/(BTC-28MAR25-90000-[CP])/g, '<span style="color:#c084fc; font-weight:600;">$1</span>');
+
+      row.innerHTML = `<span class="ed-ts">${ts}</span><span class="ed-tag tag-${tag}">[${tag}]</span><span class="ed-comp">[${component}]</span><span class="ed-msg">${formattedTxt}</span>`;
+
+      if (currentFilter !== 'ALL' && tag !== currentFilter && !(currentFilter === 'WARN' && (tag === 'WARN' || tag === 'EXIT'))) {
+        row.style.display = 'none';
+      }
+
+      edBox.appendChild(row);
+      edBox.scrollTop = edBox.scrollHeight;
+      totalLogCount++;
+      const counter = document.getElementById('ed-count');
+      if (counter) counter.textContent = `${totalLogCount} events captured`;
+    }
+
+    function filterLogs(filter, btn) {
+      currentFilter = filter;
+      document.querySelectorAll('.ed-filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const rows = edBox.querySelectorAll('.ed-line');
+      rows.forEach(r => {
+        const tag = r.dataset.tag;
+        if (filter === 'ALL') {
+          r.style.display = 'flex';
+        } else if (filter === 'WARN') {
+          r.style.display = (tag === 'WARN' || tag === 'EXIT') ? 'flex' : 'none';
+        } else {
+          r.style.display = (tag === filter) ? 'flex' : 'none';
+        }
+      });
+      edBox.scrollTop = edBox.scrollHeight;
+    }
+
+    function copyLogs(btn) {
+      const rows = edBox.querySelectorAll('.ed-line');
+      let text = '';
+      rows.forEach(r => {
+        if (r.style.display !== 'none') {
+          text += r.innerText + '\n';
+        }
+      });
+      navigator.clipboard.writeText(text).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<span>✓ Copied</span>';
+        setTimeout(() => btn.innerHTML = orig, 1500);
+      }).catch(() => {
+        alert('Copied to clipboard');
+      });
+    }
+
+    function clearLogs() {
+      edBox.innerHTML = '';
+      totalLogCount = 0;
+      const counter = document.getElementById('ed-count');
+      if (counter) counter.textContent = '0 events';
+      logMsg('nautilus_trader.kernel', 'INFO', 'Console buffer flushed. EventBus listening on zero-copy IPC channel.');
+    }
+
+    let isExpanded = false;
+    function toggleDrawerHeight() {
+      isExpanded = !isExpanded;
+      edBox.style.height = isExpanded ? '230px' : '120px';
+    }
+
+    function hoverStrike(strike, callPx, putPx, leftPos) {
+      const tt = document.getElementById('chart-tooltip');
+      if (tt) {
+        document.getElementById('tt-strike').textContent = `Strike: $${strike}`;
+        document.getElementById('tt-call').textContent = `Call: ${callPx}`;
+        document.getElementById('tt-put').textContent = `Put: ${putPx}`;
+        tt.style.left = leftPos;
+      }
+    }
+
+    logMsg('nautilus_trader.kernel', 'INFO', 'TradingNode initialized [trader_id=MEMPLUS-STRADDLE-01].');
+    logMsg('bybit.data_client', 'INFO', 'Subscribed to Bybit UTA topics: tickers.BTC, orderbook.50.BTC');
+    logMsg('BtcAtmShortStraddle', 'INFO', 'ATM Strike $90,000 selected (|K - S| = $150.00). Ask quotes verified.');
+
+    let activeScenario = 'sl';
+    let simTimer = null;
+
+    function resetState() {
+      if (simTimer) clearInterval(simTimer);
+      document.getElementById('disp-kpi-entry').textContent = '$4,070.00';
+      document.getElementById('disp-kpi-buyback').textContent = '$4,070.00';
+      document.getElementById('drift-pct').textContent = '0.00% Drift';
+      const pnlDisp = document.getElementById('disp-net-pnl');
+      if (pnlDisp) {
+        pnlDisp.textContent = 'PnL: $0.00';
+        pnlDisp.style.color = 'inherit';
+      }
+      document.getElementById('disp-kpi-drift').className = 'kpi-trend-pill trend-coral';
+      document.getElementById('disp-kpi-spot').textContent = '$90,150.00';
+      document.getElementById('disp-gauge-pct').textContent = '0.0%';
+      document.getElementById('disp-gauge-sub').textContent = 'Optimal';
+      document.getElementById('disp-gauge-sub').style.color = 'var(--text-dim)';
+      document.getElementById('row-call-px').textContent = '$2,150.00';
+      document.getElementById('row-put-px').textContent = '$1,920.00';
+      document.getElementById('row-spot-px').textContent = '$90,150.00';
+      document.getElementById('row-risk-px').textContent = '$4,070.00';
+      document.getElementById('badge-call').className = 'badge-status status-filled';
+      document.getElementById('badge-call').textContent = 'Filled';
+      document.getElementById('badge-put').className = 'badge-status status-filled';
+      document.getElementById('badge-put').textContent = 'Filled';
+      document.getElementById('badge-risk').className = 'badge-status status-armed';
+      document.getElementById('badge-risk').textContent = 'Armed';
+      document.getElementById('bar-active-c').style.height = '75px';
+      document.getElementById('bar-active-p').style.height = '68px';
+
+      for (let i = 0; i < totalRays; i++) {
+        document.getElementById(`ray-${i}`).setAttribute('stroke', i < 16 ? '#2563eb' : '#e2e8f0');
+      }
+      hoverStrike('90,000 (ATM Active)', '$2,150.00 (+0.48)', '$1,920.00 (-0.52)', '50%');
+      logMsg('BtcAtmShortStraddle', 'INFO', 'Engine state reset to initial Short Straddle position.');
+    }
+
+    function triggerTest(mode) {
+      resetState();
+      activeScenario = mode;
+
+      document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.btn-test-pill').forEach(el => el.classList.remove('active'));
+
+      if (mode === 'overview') {
+        document.getElementById('nav-overview')?.classList.add('active');
+        document.getElementById('tbl-overview')?.classList.add('active');
+        return;
+      } else if (mode === 'level1') {
+        document.getElementById('nav-level1')?.classList.add('active');
+        document.getElementById('tbl-level1')?.classList.add('active');
+      } else if (mode === 'sl') {
+        document.getElementById('nav-sl')?.classList.add('active');
+        document.getElementById('tbl-sl')?.classList.add('active');
+      } else if (mode === 'tp') {
+        document.getElementById('nav-tp')?.classList.add('active');
+        document.getElementById('tbl-tp')?.classList.add('active');
+      } else if (mode === 'legging') {
+        document.getElementById('nav-legging')?.classList.add('active');
+        document.getElementById('tbl-legging')?.classList.add('active');
+      }
+
+      if (mode === 'level1') {
+        logMsg('BtcAtmShortStraddle', 'INFO', 'Level 1: Executing Naked Short Straddle (no SL or TP active)...');
+        setTimeout(() => {
+          logMsg('bybit.venue', 'EXEC', 'OrderFilled: Call @ $2,150.00 | Put @ $1,920.00 -> Short Position Live.');
+          document.getElementById('badge-risk').className = 'badge-status status-stream';
+          document.getElementById('badge-risk').textContent = 'Naked Open';
+        }, 500);
+
+      } else if (mode === 'sl') {
+        logMsg('BtcAtmShortStraddle', 'INFO', 'Level 2: Simulating underlying adverse rally to $90,950 (+1% Liability SL)...');
+        let step = 0;
+        const ticks = [
+          { c: 2180, p: 1910, spot: 90350, hC: 85, hP: 60 },
+          { c: 2280, p: 1870, spot: 90650, hC: 105, hP: 50 },
+          { c: 2480, p: 1650, spot: 90950, hC: 125, hP: 35 }
+        ];
+
+        simTimer = setInterval(() => {
+          if (step >= ticks.length) {
+            clearInterval(simTimer);
+            const total = 2480 + 1650; // $4,130.00
+            const pct = ((total - 4070) / 4070) * 100; // +1.47%
+            const lossUsd = (total - 4070); // $60.00 loss
+            document.getElementById('disp-kpi-buyback').textContent = `$${total.toLocaleString()}.00`;
+            document.getElementById('row-risk-px').textContent = `$${total.toLocaleString()}.00`;
+            document.getElementById('drift-pct').textContent = `+${pct.toFixed(2)}% Liability Rise`;
+            const pnlDisp = document.getElementById('disp-net-pnl');
+            if (pnlDisp) {
+              pnlDisp.textContent = `Loss: -$${lossUsd.toFixed(2)}`;
+              pnlDisp.style.color = '#dc2626';
+            }
+            document.getElementById('disp-kpi-drift').className = 'kpi-trend-pill trend-coral';
+            document.getElementById('row-call-px').textContent = '$2,480.00';
+            document.getElementById('row-put-px').textContent = '$1,650.00';
+            document.getElementById('row-spot-px').textContent = '$90,950.00';
+            document.getElementById('disp-kpi-spot').textContent = '$90,950.00';
+            document.getElementById('disp-gauge-pct').textContent = `+${pct.toFixed(1)}%`;
+            document.getElementById('disp-gauge-sub').textContent = 'STOP-LOSS TRIGGERED';
+            document.getElementById('disp-gauge-sub').style.color = '#ef4444';
+
+            for (let i = 0; i < totalRays; i++) {
+              document.getElementById(`ray-${i}`).setAttribute('stroke', '#ef4444');
+            }
+
+            logMsg('BtcAtmShortStraddle', 'EXIT', `STOP-LOSS TRIGGERED (+${pct.toFixed(2)}% Liability Rise >= +1.00% threshold)! Buyback cost: $${total.toLocaleString()}.00. Net Loss: -$${lossUsd.toFixed(2)} USD.`);
+            logMsg('nautilus_trader.exec', 'INFO', 'Submitting Market BUY IOC on Call and Put legs to cover short.');
+            setTimeout(() => {
+              logMsg('bybit.venue', 'EXEC', 'OrderFilled: Both legs covered. Positions closed. Downside liability capped.');
+              document.getElementById('badge-call').textContent = 'Covered (SL)';
+              document.getElementById('badge-call').className = 'badge-status status-alert';
+              document.getElementById('badge-put').textContent = 'Covered (SL)';
+              document.getElementById('badge-put').className = 'badge-status status-alert';
+              document.getElementById('badge-risk').textContent = 'SL Executed';
+              document.getElementById('badge-risk').className = 'badge-status status-alert';
+            }, 600);
+            return;
+          }
+
+          const t = ticks[step];
+          const curBuyback = t.c + t.p;
+          const curPct = ((curBuyback - 4070) / 4070) * 100;
+          const curLoss = curBuyback - 4070;
+          document.getElementById('disp-kpi-buyback').textContent = `$${curBuyback.toLocaleString()}.00`;
+          document.getElementById('row-risk-px').textContent = `$${curBuyback.toLocaleString()}.00`;
+          document.getElementById('drift-pct').textContent = `+${curPct.toFixed(2)}% Drift`;
+          const pnlDisp = document.getElementById('disp-net-pnl');
+          if (pnlDisp) {
+            pnlDisp.textContent = `PnL: -$${curLoss.toFixed(2)}`;
+            pnlDisp.style.color = '#dc2626';
+          }
+          document.getElementById('row-call-px').textContent = `$${t.c.toLocaleString()}.00`;
+          document.getElementById('row-put-px').textContent = `$${t.p.toLocaleString()}.00`;
+          document.getElementById('row-spot-px').textContent = `$${t.spot.toLocaleString()}.00`;
+          document.getElementById('disp-kpi-spot').textContent = `$${t.spot.toLocaleString()}.00`;
+          document.getElementById('bar-active-c').style.height = `${t.hC}px`;
+          document.getElementById('bar-active-p').style.height = `${t.hP}px`;
+          document.getElementById('disp-gauge-pct').textContent = `+${curPct.toFixed(1)}%`;
+          logMsg('BtcAtmShortStraddle', 'WARN', `QuoteTick: Call Ask=$${t.c} | Put Ask=$${t.p} | Combined Buyback=$${curBuyback} (+${curPct.toFixed(2)}% cost expansion)`);
+          step++;
+        }, 600);
+
+      } else if (mode === 'tp') {
+        logMsg('BtcAtmShortStraddle', 'INFO', 'Level 2: Simulating theta decay & IV compression (-2% Liability TP)...');
+        let step = 0;
+        const ticks = [
+          { c: 2110, p: 1890, spot: 90050, hC: 70, hP: 62 },
+          { c: 2060, p: 1850, spot: 90010, hC: 62, hP: 54 },
+          { c: 2005, p: 1783, spot: 90000, hC: 50, hP: 44 }
+        ];
+
+        simTimer = setInterval(() => {
+          if (step >= ticks.length) {
+            clearInterval(simTimer);
+            const total = 2005 + 1783; // $3,788.00 (Decay)
+            const pct = ((total - 4070) / 4070) * 100; // -6.9% or exactly <= -2.0%
+            const profitUsd = (4070 - total);
+            document.getElementById('disp-kpi-buyback').textContent = `$${total.toLocaleString()}.00`;
+            document.getElementById('row-risk-px').textContent = `$${total.toLocaleString()}.00`;
+            document.getElementById('drift-pct').textContent = `${pct.toFixed(2)}% Liability Decay`;
+            const pnlDisp = document.getElementById('disp-net-pnl');
+            if (pnlDisp) {
+              pnlDisp.textContent = `Gain: +$${profitUsd.toFixed(2)}`;
+              pnlDisp.style.color = '#16a34a';
+            }
+            document.getElementById('disp-kpi-drift').className = 'kpi-trend-pill trend-green';
+            document.getElementById('row-call-px').textContent = '$2,005.00';
+            document.getElementById('row-put-px').textContent = '$1,783.00';
+            document.getElementById('row-spot-px').textContent = '$90,000.00';
+            document.getElementById('disp-kpi-spot').textContent = '$90,000.00';
+            document.getElementById('disp-gauge-pct').textContent = `${pct.toFixed(1)}%`;
+            document.getElementById('disp-gauge-sub').textContent = 'TAKE-PROFIT LOCKED';
+            document.getElementById('disp-gauge-sub').style.color = '#10b981';
+
+            for (let i = 0; i < totalRays; i++) {
+              document.getElementById(`ray-${i}`).setAttribute('stroke', '#10b981');
+            }
+
+            logMsg('BtcAtmShortStraddle', 'EXIT', `TAKE-PROFIT TRIGGERED (${pct.toFixed(2)}% Liability Decay <= -2.00% target threshold)! Buyback cost: $${total.toLocaleString()}.00. Realized Profit: +$${profitUsd.toFixed(2)} USD.`);
+            logMsg('nautilus_trader.exec', 'INFO', 'Submitting Market BUY IOC on both legs to harvest theta decay profit.');
+            setTimeout(() => {
+              logMsg('bybit.venue', 'EXEC', `OrderFilled: Both legs covered. Realized Profit: +$${profitUsd.toFixed(2)} USD locked into UTA account.`);
+              document.getElementById('badge-call').textContent = 'Closed (TP)';
+              document.getElementById('badge-call').className = 'badge-status status-filled';
+              document.getElementById('badge-put').textContent = 'Closed (TP)';
+              document.getElementById('badge-put').className = 'badge-status status-filled';
+              document.getElementById('badge-risk').textContent = 'TP Locked';
+              document.getElementById('badge-risk').className = 'badge-status status-filled';
+            }, 600);
+            return;
+          }
+
+          const t = ticks[step];
+          const curBuyback = t.c + t.p;
+          const curPct = ((curBuyback - 4070) / 4070) * 100;
+          const curGain = 4070 - curBuyback;
+          document.getElementById('disp-kpi-buyback').textContent = `$${curBuyback.toLocaleString()}.00`;
+          document.getElementById('row-risk-px').textContent = `$${curBuyback.toLocaleString()}.00`;
+          document.getElementById('drift-pct').textContent = `${curPct.toFixed(2)}% Decay`;
+          const pnlDisp = document.getElementById('disp-net-pnl');
+          if (pnlDisp) {
+            pnlDisp.textContent = `Gain: +$${curGain.toFixed(2)}`;
+            pnlDisp.style.color = '#16a34a';
+          }
+          document.getElementById('disp-kpi-drift').className = 'kpi-trend-pill trend-green';
+          document.getElementById('row-call-px').textContent = `$${t.c.toLocaleString()}.00`;
+          document.getElementById('row-put-px').textContent = `$${t.p.toLocaleString()}.00`;
+          document.getElementById('bar-active-c').style.height = `${t.hC}px`;
+          document.getElementById('bar-active-p').style.height = `${t.hP}px`;
+          document.getElementById('disp-gauge-pct').textContent = `${curPct.toFixed(1)}%`;
+          logMsg('BtcAtmShortStraddle', 'INFO', `QuoteTick: Call Ask=$${t.c} | Put Ask=$${t.p} | Combined Buyback=$${curBuyback} (${curPct.toFixed(2)}% cost decay)`);
+          step++;
+        }, 600);
+
+      } else if (mode === 'legging') {
+        logMsg('BtcAtmShortStraddle', 'INFO', 'Submitting concurrent market sell orders for Call and Put legs...');
+        setTimeout(() => {
+          logMsg('bybit.venue', 'EXEC', 'OrderFilled: Call Leg FILLED 0.10 BTC @ $2,150.00');
+          logMsg('bybit.venue', 'WARN', 'OrderRejected: Put Leg REJECTED (ErrCode 110007: Margin shortfall)');
+          logMsg('BtcAtmShortStraddle', 'WARN', 'LEGGING ASYMMETRY DETECTED: Put rejected while Call filled!');
+          logMsg('BtcAtmShortStraddle', 'WARN', 'Executing Emergency Unwind Protocol to eliminate unhedged delta...');
+
+          document.getElementById('badge-put').textContent = 'Rejected (110007)';
+          document.getElementById('badge-put').className = 'badge-status status-alert';
+          document.getElementById('row-put-px').textContent = 'UNFILLED';
+
+          setTimeout(() => {
+            logMsg('nautilus_trader.exec', 'INFO', 'OrderSubmitted: Market BUY 0.10 BTC on Call Leg to unwind position.');
+            logMsg('bybit.venue', 'EXEC', 'OrderFilled: Call covered @ $2,152.00. Position Flattened. Delta: 0.00.');
+            document.getElementById('badge-call').textContent = 'Unwound (Delta 0)';
+            document.getElementById('badge-call').className = 'badge-status status-armed';
+            document.getElementById('badge-risk').textContent = 'Neutralized';
+            document.getElementById('badge-risk').className = 'badge-status status-armed';
+          }, 700);
+        }, 500);
+      }
+    }
+
+    function runInteractiveDemo() {
+      const modes = ['level1', 'sl', 'tp', 'legging'];
+      const nextIdx = (modes.indexOf(activeScenario) + 1) % modes.length;
+      triggerTest(modes[nextIdx]);
+    }
+  
+  </script>
+</body>
+</html>
