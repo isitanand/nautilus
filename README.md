@@ -4,7 +4,9 @@
 > **Candidate:** Anand Choubey (ABES Engineering College, Class of 2027)  
 > **Company:** Memplus Technologies LLP (Jodhpur)  
 > **Framework:** [NautilusTrader](https://nautilustrader.io/) (High-performance event-driven algorithmic trading engine)  
-> **Exchange Adapter:** Bybit v5 (Unified Trading Account — Crypto Options & Linear Perpetuals)
+> **Exchange Adapter:** Bybit v5 (Unified Trading Account — Crypto Options & Linear Perpetuals)  
+> **Live Web Dashboard:** [https://nautilus-green.vercel.app/](https://nautilus-green.vercel.app/)  
+> **Master Interview Guide (PDF):** [MEMPLUS_INTERVIEW_MASTER_GUIDE.pdf](MEMPLUS_INTERVIEW_MASTER_GUIDE.pdf)
 
 ---
 
